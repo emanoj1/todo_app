@@ -2,13 +2,22 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Blueprint
 
-app = Flask(__name__) # app is an object inheriting the functionalities from Flask
+# Initialize Flask application
+app = Flask(__name__) 
+
+# Configuration for SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://username:password@localhost/todo_app'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'  # Change this to a secure secret key
+
+# Initialize SQLAlchemy and Flask-Migrate
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# Define a Blueprint for todos
+todo_bp = Blueprint('todo_bp', __name__)
 
 # Models
 class User(db.Model):
