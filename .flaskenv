@@ -1,2 +1,3 @@
-FLASK_APP=todo
+FLASK_APP=todo:create_app
 FLASK_DEBUG=1
+FLASK_ENV=development
