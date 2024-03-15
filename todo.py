@@ -6,7 +6,7 @@ from flask_jwt_extended import JWTManager
 from datetime import timedelta
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://username:password@localhost/todo_app'
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://todo_dev:12345@localhost:5432/todo_db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['JWT_SECRET_KEY'] = 'jwt_secret_key'  # Change this to a secure secret key
