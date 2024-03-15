@@ -21,6 +21,3 @@ migrate = Migrate(app, db)
 jwt = JWTManager(app)
 
 app.register_blueprint(todo_blueprint)
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
