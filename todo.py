@@ -3,6 +3,7 @@ from models import db
 from blueprints import todo_blueprint
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
+from datetime import timedelta
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://username:password@localhost/todo_app'
