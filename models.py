@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
 
 class User(db.Model):
-    __tablename__ = "users" #The table name
+    __tablename__ = "user" #The table name
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
@@ -16,6 +16,7 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
 class TodoItem(db.Model):
+    __tablename__="todo_items"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
@@ -27,12 +28,14 @@ class TodoItem(db.Model):
     category = db.relationship('Category', backref=db.backref('todo_items', lazy=True))
 
 class Category(db.Model):
+    __tablename__="category"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
 
 class Tag(db.Model):
+    __tablename__="tags"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
-    todo_id = db.Column(db.Integer, db.ForeignKey('todo_item.id'), nullable=False)
+    todo_id = db.Column(db.Integer, db.ForeignKey('todo_items.id'), nullable=False)
     todo_item = db.relationship('TodoItem', backref=db.backref('tags', lazy=True))
 
