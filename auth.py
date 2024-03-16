@@ -18,7 +18,8 @@ def signup():
         return jsonify({'error': 'Username already exists'}), 409
     
     # Create a new user
-    new_user = User(username=username, password_hash=generate_password_hash(password))
+    new_user = User(username=username)
+    new_user.set_password(password)
 
     # Add the new user to the database
     db.session.add(new_user)
@@ -33,6 +34,7 @@ def signup():
 @auth_blueprint.route('/login', methods=['POST'])
 def login():
     data = request.json
+
     if 'username' not in data or 'password' not in data:
         return jsonify({'error': 'Username and password are required'}), 400
 
@@ -43,8 +45,8 @@ def login():
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
 
-@auth_blueprint.route('/protected')
-@jwt_required()
-def protected():
-    current_user_id = get_jwt_identity()
-    return jsonify({'message': 'This is a protected route for authenticated users', 'user_id': current_user_id}), 200
+#@auth_blueprint.route('/protected')
+#@jwt_required()
+#def protected():
+#    current_user_id = get_jwt_identity()
+#    return jsonify({'message': 'This is a protected route for authenticated users', 'user_id': current_user_id}), 200
