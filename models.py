@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import generate_password_hash, check_password_hash
+from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
 
@@ -26,11 +27,13 @@ class TodoItem(db.Model):
     user = db.relationship('User', backref=db.backref('todo_items', lazy=True))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     category = db.relationship('Category', backref=db.backref('todo_items', lazy=True))
+    
 
 class Category(db.Model):
     __tablename__="category"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
+
 
 class Tag(db.Model):
     __tablename__="tags"
@@ -38,4 +41,3 @@ class Tag(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
     todo_id = db.Column(db.Integer, db.ForeignKey('todo_items.id'), nullable=False)
     todo_item = db.relationship('TodoItem', backref=db.backref('tags', lazy=True))
-
