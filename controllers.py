@@ -40,22 +40,20 @@ def get_todo(todo_id):
 # Controller to Retrieve Todo Items by Tag
 def get_todos_by_tag(tag_name):
     # Query the database to find the tag
-    tag = Tag.query.filter_by(name=tag_name).first()
+    tag = Tag.query.filter_by(name=tag_name).all()
     if not tag:
         return jsonify({'error': 'Tag not found'}), 404
 
-    # Retrieve all todo items associated with the tag
-    todos = tag.todo_id
-    print(todos)
-    todo_details = TodoItem.query.filter_by(id=todos).first()
-    print(todo_details)
+    # Managing multiple todos for a single tag
+    for i in range(0, len(tag)):
+        todo_id = tag[i].todo_id
+        todo_details = TodoItem.query.filter_by(id=todo_id).all()
+        print("todo_details", todo_details)
 
     # Serialize todo items
-    todo_list = []
-    for todo in todos:
-        print(todo)
-
-        todo_data = {
+        todo_list = []
+        for todo in todo_details:
+            todo_data = {
             'id': todo.id,
             'title': todo.title,
             'description': todo.description,
@@ -64,9 +62,10 @@ def get_todos_by_tag(tag_name):
             'user_id': todo.user_id,
             'category_id': todo.category_id
         }
-        todo_list.append(todo_data)
+            todo_list.append(todo_data)
 
     return jsonify({'todos': todo_list})
+
 
 # Controller logic to create a new todo
 def create_todo():
@@ -89,7 +88,7 @@ def create_todo():
     for tag_name in tags:
         tag = Tag.query.filter_by(name=tag_name).first()
         if not tag:
-            tag = Tag(name=tag_name, todo_id=new_todo.id)
+            tag = Tag(name=tag_name, todo_item=new_todo)
             db.session.add(tag)
         new_todo.tags.append(tag)
 
@@ -122,6 +121,16 @@ def update_todo(todo_id):
         todo.completed = data['completed']
     if 'category_id' in data:
         todo.category_id = data['category_id']
+    if 'tags' in data:
+        todo.tags = [] # Create an empty list
+        for tag_name in data["tags"]:
+            tag = Tag.query.filter_by(name = tag_name).first()
+            if not tag:
+                tag = Tag(name = tag_name)
+                db.session.add(tag)
+            tag.todo_id = todo.id
+            todo.tags.append(tag)
+
 
     db.session.commit()
 
@@ -132,7 +141,8 @@ def update_todo(todo_id):
         'due_date': todo.due_date.isoformat() if todo.due_date else None,
         'completed': todo.completed,
         'user_id': todo.user_id,
-        'category_id': todo.category_id
+        'category_id': todo.category_id,
+        'tags': [tag.name for tag in todo.tags] 
     }
 
     return jsonify({'todo': todo_data})

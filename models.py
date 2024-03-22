@@ -27,7 +27,13 @@ class TodoItem(db.Model):
     user = db.relationship('User', backref=db.backref('todo_items', lazy=True))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     category = db.relationship('Category', backref=db.backref('todo_items', lazy=True))
-    
+    tags = db.relationship('Tag', secondary='todo_tags', backref=db.backref('todos', lazy=True))
+
+todo_tags = db.Table('todo_tags',
+db.Column('todo_id', db.Integer, db.ForeignKey('todo_items.id'), primary_key=True),
+db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True)
+)
+
 
 class Category(db.Model):
     __tablename__="category"
@@ -40,4 +46,4 @@ class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     todo_id = db.Column(db.Integer, db.ForeignKey('todo_items.id'), nullable=False)
-    todo_item = db.relationship('TodoItem', backref=db.backref('tags', lazy=True))
+    todo_item = db.relationship('TodoItem', backref=db.backref('tagged_items', lazy=True))
