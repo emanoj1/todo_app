@@ -73,6 +73,9 @@ def create_todo():
     if 'title' not in data or 'user_id' not in data:
         return jsonify({'error': 'Title and user_id are required'}), 400
 
+    # Extract tags from data
+    tags = data.get('tags', [])
+
     # Create a new ToDoItem object
     new_todo = TodoItem(title=data['title'],
                         description=data.get('description'),
@@ -80,29 +83,36 @@ def create_todo():
                         completed=data.get('completed', False),
                         user_id=data['user_id'],
                         category_id=data.get('category_id'))
-    
-    # Extract tags from data
-    tags = data.get('tags', [])
-
-    # Associate tags with the new todo item
-    for tag_name in tags:
-        tag = Tag.query.filter_by(name=tag_name).first()
-        if not tag:
-            tag = Tag(name=tag_name, todo_item=new_todo)
-            db.session.add(tag)
-        new_todo.tags.append(tag)
 
     # Add the new todo item to the database session
     db.session.add(new_todo)
+
+    # Associate tags with the new todo item
+    for tag_name in tags:
+        # Check if the tag already exists in the database
+        tag = Tag.query.filter_by(name=tag_name).first()
+        if not tag:
+            # If the tag does not exist, create a new tag and associate it with the todo item
+            tag = Tag(name=tag_name)
+            db.session.add(tag)
+            new_todo.tags.append(tag)
+        else:
+            # If the tag exists, associate it with the todo item
+            new_todo.tags.append(tag)
+
+    # Commit changes to the database
     db.session.commit()
 
-    return jsonify({'todo': {'id': new_todo.id, 'title': new_todo.title,
+    # Return the response with the created todo item and associated tags
+    return jsonify({'todo': {'id': new_todo.id,
+                             'title': new_todo.title,
                              'description': new_todo.description,
                              'due_date': new_todo.due_date.isoformat() if new_todo.due_date else None,
                              'completed': new_todo.completed,
                              'user_id': new_todo.user_id,
                              'category_id': new_todo.category_id,
                              'tags': [tag.name for tag in new_todo.tags]}}), 201
+
 
 # Controller logic to update an existing todo
 def update_todo(todo_id):
