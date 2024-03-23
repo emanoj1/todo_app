@@ -44,9 +44,3 @@ def login():
         return jsonify({'access_token': access_token}), 200
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
-
-#@auth_blueprint.route('/protected')
-#@jwt_required()
-#def protected():
-#    current_user_id = get_jwt_identity()
-#    return jsonify({'message': 'This is a protected route for authenticated users', 'user_id': current_user_id}), 200

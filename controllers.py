@@ -83,9 +83,12 @@ def create_todo():
                         completed=data.get('completed', False),
                         user_id=data['user_id'],
                         category_id=data.get('category_id'))
-
+    
     # Add the new todo item to the database session
     db.session.add(new_todo)
+
+    # Commit changes to the database
+    db.session.commit()
 
     # Associate tags with the new todo item
     for tag_name in tags:
@@ -93,15 +96,10 @@ def create_todo():
         tag = Tag.query.filter_by(name=tag_name).first()
         if not tag:
             # If the tag does not exist, create a new tag and associate it with the todo item
-            tag = Tag(name=tag_name)
+            tag = Tag(name=tag_name, todo_id=new_todo.id)
             db.session.add(tag)
-            new_todo.tags.append(tag)
-        else:
-            # If the tag exists, associate it with the todo item
-            new_todo.tags.append(tag)
-
-    # Commit changes to the database
-    db.session.commit()
+        # Associate the tag with the todo item
+        new_todo.tags.append(tag)
 
     # Return the response with the created todo item and associated tags
     return jsonify({'todo': {'id': new_todo.id,
@@ -162,6 +160,10 @@ def delete_todo(todo_id):
     todo = TodoItem.query.get(todo_id)
     if not todo:
         return jsonify({'error': 'Todo not found'}), 404
+    
+    # Delete associated tags
+    for tag in todo.tags:
+        db.session.delete(tag)
 
     db.session.delete(todo)
     db.session.commit()
